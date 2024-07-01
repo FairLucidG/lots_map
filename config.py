@@ -13,12 +13,12 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:Lk5Wygyz59@127.0.0.1:5433/map_ne'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-    MAIL_SERVER = 'smtp.jino.ru'
+    MAIL_SERVER = 'smtp.server.ru'
     MAIL_PORT = 465
     MAIL_USE_TLS = 1
-    MAIL_USERNAME = 'robot@mycotka.ru'
-    MAIL_PASSWORD = 'Lk5Wy$gyz59'
-    ADMINS = ['support@mycotka.ru']
+    MAIL_USERNAME = 'robot@msite.ru'
+    MAIL_PASSWORD = ''
+    ADMINS = ['support@site.ru']
 
     SCHEDULER_EXECUTORS = {"default": {"type": "threadpool", "max_workers": 25}}
     # указываем разрешенные хосты
