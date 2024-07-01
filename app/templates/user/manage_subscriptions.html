@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+{% block title %}Управление подписками и фильтрами{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Управление подписками и фильтрами</h1>
+
+    <!-- Управление подписками -->
+    <div class="card mb-4">
+        <div class="card-header">Управление подписками</div>
+        <div class="card-body">
+            <form id="addSubscriptionForm" class="mb-3">
+                <div class="input-group">
+                    <input type="hidden" id="subscriptionId">
+                    <input type="text" class="form-control" id="subscriptionName" placeholder="Название подписки">
+                    <div class="input-group-append">
+                        <button class="btn btn-success" type="submit">Добавить</button>
+                        <button class="btn btn-primary" id="updateSubscriptionBtn" type="button" style="display:none;">Принять изменения</button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="subscriptionTableBody">
+                    <!-- Данные о подписках будут загружены сюда -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Управление фильтрами -->
+    <div class="card mb-4">
+        <div class="card-header">Управление фильтрами</div>
+        <div class="card-body">
+            <form id="addFilterForm" class="mb-3">
+                <input type="hidden" id="filterId">
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" class="form-control" id="filterName" placeholder="Название фильтра">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="filterParameter" placeholder="Параметр фильтра">
+                    </div>
+                    <div class="col">
+                        <select class="form-control" id="filterType">
+                            <option value="text">Текст</option>
+                            <option value="combo_box">Выпадающий список</option>
+                            <option value="combo_box_from_list">Выпадающий список из списка</option>
+                            <option value="boolean">Булево значение</option>
+                            <option value="date_range">Диапазон дат</option>
+                            <option value="double_slider">Двойной слайдер</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="filterTable" placeholder="Таблица">
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-success" type="submit">Добавить</button>
+                        <button class="btn btn-primary" id="updateFilterBtn" type="button" style="display:none;">Принять изменения</button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Параметр</th>
+                        <th>Тип</th>
+                        <th>Таблица</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="filterTableBody">
+                    <!-- Данные о фильтрах будут загружены сюда -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Управление диапазонами значений фильтров -->
+    <div class="card mb-4">
+        <div class="card-header">Управление диапазонами значений фильтров</div>
+        <div class="card-body">
+            <form id="addFilterRangeForm" class="mb-3">
+                <input type="hidden" id="filterRangeId">
+                <div class="form-row">
+                    <div class="col">
+                        <select class="form-control" id="filterSelect">
+                            <!-- Опции будут загружены сюда -->
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select class="form-control" id="subscriptionSelect">
+                            <!-- Опции будут загружены сюда -->
+                        </select>
+                    </div>
+                    <div class="col" id="minValueContainer">
+                        <input type="number" class="form-control" id="minValue" placeholder="Минимальное значение">
+                    </div>
+                    <div class="col" id="maxValueContainer">
+                        <input type="number" class="form-control" id="maxValue" placeholder="Максимальное значение">
+                    </div>
+                    <div class="col" id="dateValueContainer" style="display: none;">
+                        <input type="text" class="form-control" id="relativeDate" placeholder="Относительная дата (например, сегодня, завтра)">
+                    </div>
+                    <div class="col" id="allowedValuesContainer" style="display: none;">
+                        <select class="form-control select2" id="allowedValues" multiple="multiple" style="width: 100%;">
+                            <!-- Опции будут загружены сюда -->
+                        </select>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-success" type="submit">Добавить</button>
+                        <button class="btn btn-primary" id="updateFilterRangeBtn" type="button" style="display:none;">Принять изменения</button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Фильтр</th>
+                        <th>Подписка</th>
+                        <th>Минимальное значение</th>
+                        <th>Максимальное значение</th>
+                        <th>Относительная дата</th>
+                        <th>Допустимые значения</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="filterRangeTableBody">
+                    <!-- Данные о диапазонах значений будут загружены сюда -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+
+$(document).ready(function() {
+    loadSubscriptions();
+    loadFilters();
+    loadFilterRanges();
+
+    $('#allowedValues').select2();
+
+    $('#filterType').on('change', function() {
+        const type = $(this).val();
+        if (type === 'date_range') {
+            $('#minValueContainer, #maxValueContainer, #allowedValuesContainer').hide();
+            $('#dateValueContainer').show();
+        } else if (type === 'double_slider') {
+            $('#dateValueContainer, #allowedValuesContainer').hide();
+            $('#minValueContainer, #maxValueContainer').show();
+        } else if (type === 'combo_box' || type === 'combo_box_from_list') {
+            $('#minValueContainer, #maxValueContainer, #dateValueContainer').hide();
+            $('#allowedValuesContainer').show();
+            loadComboBoxOptions(type);
+        } else {
+            $('#minValueContainer, #maxValueContainer, #dateValueContainer, #allowedValuesContainer').hide();
+        }
+    });
+
+    $('#addSubscriptionForm').on('submit', function(e) {
+        e.preventDefault();
+        addSubscription();
+    });
+
+    $('#updateSubscriptionBtn').on('click', function() {
+        updateSubscription();
+    });
+
+    $('#addFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        addFilter();
+    });
+
+    $('#updateFilterBtn').on('click', function() {
+        updateFilter();
+    });
+
+    $('#addFilterRangeForm').on('submit', function(e) {
+        e.preventDefault();
+        addFilterRange();
+    });
+
+    $('#updateFilterRangeBtn').on('click', function() {
+        updateFilterRange();
+    });
+});
+
+function loadSubscriptions() {
+    $.get('/api/get_subscriptions', function(data) {
+        $('#subscriptionTableBody').empty();
+        $('#subscriptionSelect').empty();
+        data.forEach(function(subscription) {
+            $('#subscriptionTableBody').append(`
+                <tr>
+                    <td>${subscription.name}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editSubscription(${subscription.id}, '${subscription.name}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSubscription(${subscription.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+            $('#subscriptionSelect').append(`<option value="${subscription.id}">${subscription.name}</option>`);
+        });
+    });
+}
+
+function loadFilters() {
+    $.get('/api/get_filters_data', function(data) {
+        $('#filterTableBody').empty();
+        $('#filterSelect').empty();
+        data.forEach(function(filter) {
+            $('#filterTableBody').append(`
+                <tr>
+                    <td>${filter.name}</td>
+                    <td>${filter.filter_parameter}</td>
+                    <td>${filter.parameter_type}</td>
+                    <td>${filter.db_table_name}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editFilter(${filter.id}, '${filter.name}', '${filter.filter_parameter}', '${filter.parameter_type}', '${filter.db_table_name}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFilter(${filter.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+            $('#filterSelect').append(`<option value="${filter.id}">${filter.name}</option>`);
+        });
+    });
+}
+
+function loadFilterRanges() {
+    $.get('/api/get_filter_ranges', function(data) {
+        $('#filterRangeTableBody').empty();
+        data.forEach(function(range) {
+            $('#filterRangeTableBody').append(`
+                <tr>
+                    <td>${range.filter_name}</td>
+                    <td>${range.subscription_name}</td>
+                    <td>${range.min_value}</td>
+                    <td>${range.max_value}</td>
+                    <td>${range.relative_date}</td>
+                    <td>${range.allowed_values}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editFilterRange(${range.id}, ${range.filter_id}, ${range.subscription_id}, '${range.min_value}', '${range.max_value}', '${range.relative_date}', '${range.allowed_values}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFilterRange(${range.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+        });
+    });
+}
+
+function loadComboBoxOptions(type) {
+    const filterId = $('#filterSelect').val();
+    if (filterId) {
+        $.get(`/api/get_combo_box_options/${filterId}`, function(data) {
+            $('#allowedValues').empty();
+            data.forEach(function(option) {
+                $('#allowedValues').append(`<option value="${option}">${option}</option>`);
+            });
+        });
+    }
+}
+
+function addSubscription() {
+    const name = $('#subscriptionName').val();
+    $.post('/api/add_subscription', { name }, function() {
+        $('#subscriptionName').val('');
+        loadSubscriptions();
+    });
+}
+
+function updateSubscription() {
+    const id = $('#subscriptionId').val();
+    const name = $('#subscriptionName').val();
+    $.post('/api/edit_subscription', { id, name }, function() {
+        $('#subscriptionId').val('');
+        $('#subscriptionName').val('');
+        $('#updateSubscriptionBtn').hide();
+        loadSubscriptions();
+    });
+}
+
+function editSubscription(id, name) {
+    $('#subscriptionId').val(id);
+    $('#subscriptionName').val(name);
+    $('#updateSubscriptionBtn').show();
+}
+
+function addFilter() {
+    const name = $('#filterName').val();
+    const filter_parameter = $('#filterParameter').val();
+    const parameter_type = $('#filterType').val();
+    const db_table_name = $('#filterTable').val();
+    $.post('/api/add_filter', { name, filter_parameter, parameter_type, db_table_name }, function() {
+        $('#filterName').val('');
+        $('#filterParameter').val('');
+        $('#filterType').val('text');
+        $('#filterTable').val('');
+        loadFilters();
+    });
+}
+
+function updateFilter() {
+    const id = $('#filterId').val();
+    const name = $('#filterName').val();
+    const filter_parameter = $('#filterParameter').val();
+    const parameter_type = $('#filterType').val();
+    const db_table_name = $('#filterTable').val();
+    $.post('/api/edit_filter', { id, name, filter_parameter, parameter_type, db_table_name }, function() {
+        $('#filterId').val('');
+        $('#filterName').val('');
+        $('#filterParameter').val('');
+        $('#filterType').val('text');
+        $('#filterTable').val('');
+        $('#updateFilterBtn').hide();
+        loadFilters();
+    });
+}
+
+function editFilter(id, name, filter_parameter, parameter_type, db_table_name) {
+    $('#filterId').val(id);
+    $('#filterName').val(name);
+    $('#filterParameter').val(filter_parameter);
+    $('#filterType').val(parameter_type);
+    $('#filterTable').val(db_table_name);
+    $('#updateFilterBtn').show();
+}
+
+function addFilterRange() {
+    const filter_id = $('#filterSelect').val();
+    const subscription_id = $('#subscriptionSelect').val();
+    const min_value = $('#minValue').val();
+    const max_value = $('#maxValue').val();
+    const relative_date = $('#relativeDate').val();
+    const allowed_values = $('#allowedValues').val();
+    $.post('/api/add_filter_range', { filter_id, subscription_id, min_value, max_value, relative_date, allowed_values }, function() {
+        $('#filterRangeId').val('');
+        $('#minValue').val('');
+        $('#maxValue').val('');
+        $('#relativeDate').val('');
+        $('#allowedValues').val(null).trigger('change');
+        loadFilterRanges();
+    });
+}
+
+function updateFilterRange() {
+    const id = $('#filterRangeId').val();
+    const filter_id = $('#filterSelect').val();
+    const subscription_id = $('#subscriptionSelect').val();
+    const min_value = $('#minValue').val();
+    const max_value = $('#maxValue').val();
+    const relative_date = $('#relativeDate').val();
+    const allowed_values = $('#allowedValues').val();
+    $.post('/api/edit_filter_range', { id, filter_id, subscription_id, min_value, max_value, relative_date, allowed_values }, function() {
+        $('#filterRangeId').val('');
+        $('#minValue').val('');
+        $('#maxValue').val('');
+        $('#relativeDate').val('');
+        $('#allowedValues').val(null).trigger('change');
+        $('#updateFilterRangeBtn').hide();
+        loadFilterRanges();
+    });
+}
+
+function editFilterRange(id, filter_id, subscription_id, min_value, max_value, relative_date, allowed_values) {
+    $('#filterRangeId').val(id);
+    $('#filterSelect').val(filter_id).trigger('change');
+    $('#subscriptionSelect').val(subscription_id).trigger('change');
+    $('#minValue').val(min_value);
+    $('#maxValue').val(max_value);
+    $('#relativeDate').val(relative_date);
+    $('#allowedValues').val(allowed_values ? allowed_values.split(',') : []).trigger('change');
+    $('#updateFilterRangeBtn').show();
+}
+
+function deleteSubscription(id) {
+    $.ajax({
+        url: `/api/delete_subscription/${id}`,
+        type: 'DELETE',
+        success: function() {
+            loadSubscriptions();
+        }
+    });
+}
+
+function deleteFilter(id) {
+    $.ajax({
+        url: `/api/delete_filter/${id}`,
+        type: 'DELETE',
+        success: function() {
+            loadFilters();
+        }
+    });
+}
+
+function deleteFilterRange(id) {
+    $.ajax({
+        url: `/api/delete_filter_range/${id}`,
+        type: 'DELETE',
+        success: function() {
+            loadFilterRanges();
+        }
+    });
+}
+
+</script>
+{% endblock %}

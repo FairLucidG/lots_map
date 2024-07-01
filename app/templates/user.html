@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+
+    <h1 class="shadow-sm mt-1 mb-3 p-2 rounded">Личный кабинет</h1>
+
+    <div class="row">
+      <div class="col-md-3 col-lg-2">
+        <nav class="nav nav-pills flex-column">
+            <a class="nav-link active btn btn-light" data-bs-toggle="pill" href="#summary">Основное</a>
+          <a class="nav-link btn btn-light" data-bs-toggle="pill" href="#planner">Планировщик</a>
+          <a class="nav-link btn btn-light" data-bs-toggle="pill" href="#search">Поиск</a>
+          <a class="nav-link btn btn-light" data-bs-toggle="pill" href="#myfiles">Мои файлы</a>
+        </nav>
+      </div>
+      <div class="col-md-9 col-lg-10">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="summary">
+                <h2>Ваш статус: {{ user.role.name }}</h2>
+                <h2>Ваше время: {{ user_time }}</h2>
+                <h2>Ваша электронна почта: {{ user.email }}</h2>
+          </div>
+          <div class="tab-pane fade" id="planner">
+            <!-- Контент для вкладки "Планировщик" -->
+            <h2>Управление заданиями планировщика</h2>
+
+            <div class="row mt-5">
+                <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Задача</th>
+                    <th scope="col">Действия</th>
+                    <th scope="col">Статус</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <form method="post">
+                {% for category in lot_categories %}
+                    {% set task_running = scheduler.get_job('parse_job_' + category.cat_id|string + '_global') %}
+                    {% set task_state = 0 if task_running else 2 %}
+                    {% set task_state_text = 'Выполняется' if task_running else 'Не запущена' %}
+                    {% if task_running %}
+                        {% if task_running.next_run_time %}
+                            {% set task_state = 0 %}
+                        {% else %}
+                            {% set task_state = 1 %}
+                            {% set task_state_text = 'Приостановлена' %}
+                        {% endif %}
+                    {% endif %}
+                    <tr>
+                        <td>{{ category.cat_name }} - глобальное</td>
+                        <td>
+                            <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if task_running else '0' }};g" class="btn btn-primary {{ 'disabled' if task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if task_running }}>
+                             Запустить
+                            </button>
+                            {% if task_running %}
+                                <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if task_state == 2 else '2' if task_state == 1 else '1' }};g" class="btn btn-warning {{ 'disabled' if task_state == 2 }} col-12 mb-1 col-md-3" {{ 'disabled' if task_state == 2 }}>
+                                    {{ "Возобновить" if task_state == 1 else "Приостановить" }}
+                                </button>
+                            {% else %}
+                                <button type="submit" name="action" value="{{ category.cat_id }};-2;g" class="btn btn-warning disabled col-12 mb-1 col-md-3" disabled>
+                                 Приостановить
+                                </button>
+                            {% endif %}
+                            <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if not task_running else '-1' }};g" class="btn btn-danger {{ 'disabled' if not task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if not task_running }}>
+                             Остановить
+                            </button>
+                        </td>
+                        {% if task_running %}
+                            <td>{{ task_state_text }}</td>
+                        {% else %}
+                            <td>Не запущена</td>
+                        {% endif %}
+                    </tr>
+                    {% set task_running = scheduler.get_job('parse_job_' + category.cat_id|string) %}
+                    {% set task_state = 0 if task_running else 2 %}
+                    {% set task_state_text = 'Выполняется' if task_running else 'Не запущена' %}
+                    {% if task_running %}
+                        {% if task_running.next_run_time %}
+                            {% set task_state = 0 %}
+                        {% else %}
+                            {% set task_state = 1 %}
+                            {% set task_state_text = 'Приостановлена' %}
+                        {% endif %}
+                    {% endif %}
+                    <tr>
+                        <td>{{ category.cat_name }} - каждый час</td>
+                        <td>
+                            <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if task_running else '0' }}" class="btn btn-primary {{ 'disabled' if task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if task_running }}>
+                             Запустить
+                            </button>
+                            {% if task_running %}
+                                <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if task_state == 2 else '2' if task_state == 1 else '1' }}" class="btn btn-warning {{ 'disabled' if task_state == 2 }} col-12 mb-1 col-md-3" {{ 'disabled' if task_state == 2 }}>
+                                    {{ "Возобновить" if task_state == 1 else "Приостановить" }}
+                                </button>
+                            {% else %}
+                                <button type="submit" name="action" value="{{ category.cat_id }};-2" class="btn btn-warning disabled col-12 mb-1 col-md-3" disabled>
+                                 Приостановить
+                                </button>
+                            {% endif %}
+                            <button type="submit" name="action" value="{{ category.cat_id }};{{ '-2' if not task_running else '-1' }}" class="btn btn-danger {{ 'disabled' if not task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if not task_running }}>
+                             Остановить
+                            </button>
+                        </td>
+                        {% if task_running %}
+                            <td>{{ task_state_text }}</td>
+                        {% else %}
+                            <td>Не запущена</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+                    {% set task_running = scheduler.get_job('additional_lot_info_task') %}
+                    {% set task_state = 0 if task_running else 2 %}
+                    {% set task_state_text = 'Выполняется' if task_running else 'Не запущена' %}
+                    {% if task_running %}
+                        {% if task_running.next_run_time %}
+                            {% set task_state = 0 %}
+                        {% else %}
+                            {% set task_state = 1 %}
+                            {% set task_state_text = 'Приостановлена' %}
+                        {% endif %}
+                    {% endif %}
+                    <tr>
+                        <td>Получение границ участков и дополнительных данных лотов</td>
+                        <td>
+                            <button type="submit" name="action" value="-1;{{ '-2' if task_running else '0' }}" class="btn btn-primary {{ 'disabled' if task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if task_running }}>
+                             Запустить
+                            </button>
+                            {% if task_running %}
+                                <button type="submit" name="action" value="-1;{{ '-2' if task_state == 2 else '2' if task_state == 1 else '1' }}" class="btn btn-warning {{ 'disabled' if task_state == 2 }} col-12 mb-1 col-md-3" {{ 'disabled' if task_state == 2 }}>
+                                    {{ "Возобновить" if task_state == 1 else "Приостановить" }}
+                                </button>
+                            {% else %}
+                                <button type="submit" name="action" value="-1;-2" class="btn btn-warning disabled col-12 mb-1 col-md-3" disabled>
+                                 Приостановить
+                                </button>
+                            {% endif %}
+                            <button type="submit" name="action" value="-1;{{ '-2' if not task_running else '-1' }}" class="btn btn-danger {{ 'disabled' if not task_running }} col-12 mb-1 col-md-3" {{ 'disabled' if not task_running }}>
+                             Остановить
+                            </button>
+                        </td>
+                        {% if task_running %}
+                            <td>{{ task_state_text }}</td>
+                        {% else %}
+                            <td>Не запущена</td>
+                        {% endif %}
+                    </tr>
+                </form>
+                </tbody>
+                </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="search">
+            <!-- Контент для вкладки "Поиск" -->
+            <h2>Поиск</h2>
+            <p>Используйте эту вкладку для поиска файлов и информации.</p>
+          </div>
+          <div class="tab-pane fade" id="myfiles">
+            <!-- Контент для вкладки "Мои файлы" -->
+            <h2>Лоты в БД</h2>
+            <div class="form-group">
+                <label for="per_file"><h5>Количество записей в файле:</h5></label>
+                <input type="number" class="form-control mb-2" id="per_file" name="per_file" min="1" value="{{ lots_count }}">
+            </div>
+            <a href="#" class="btn btn-primary col-12" id="download-link">Скачать CSV</a>
+
+            <script>
+                const perFileInput = document.getElementById('per_file');
+                const downloadLink = document.getElementById('download-link');
+                const lotsCount = {{ lots_count }};
+
+                perFileInput.addEventListener('input', () => {
+                    const perFile = perFileInput.value;
+                    const baseUrl = "{{ url_for('main.download_csv') }}";
+                    const url = perFile ? `${baseUrl}?per_file=${perFile}` : baseUrl;
+                    downloadLink.href = url;
+                });
+
+                downloadLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const perFile = perFileInput.value;
+                    const baseUrl = "{{ url_for('main.download_csv') }}";
+
+                    if (perFile >= lotsCount) {
+                        window.location.href = baseUrl;
+                    } else {
+                        const parts = Math.ceil(lotsCount / perFile);
+                        downloadParts(baseUrl, perFile, parts);
+                    }
+                });
+
+                function downloadParts(baseUrl, perFile, parts) {
+                    let currentPart = 1;
+                    const downloadNextPart = () => {
+                        const url = `${baseUrl}?per_file=${perFile}&part=${currentPart}`;
+                        window.open(url, '_blank');
+                        currentPart++;
+                        if (currentPart <= parts) {
+                            setTimeout(downloadNextPart, 1000);
+                        }
+                    };
+                    downloadNextPart();
+                }
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}

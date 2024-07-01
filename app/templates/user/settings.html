@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Настройки{% endblock %}
+{% block content %}
+
+    <h1 class="shadow-sm mt-1 mb-3 p-2 rounded">Настройки</h1>
+    <form id="settingsForm" method="post">
+    <div class="row align-items-stretch">
+        <!-- Карточка "Безопасность" -->
+
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <h5 class="card-header">
+                        Безопасность
+                    </h5>
+
+                    <div class="card-body d-flex flex-column">
+
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label fw-bold">Текущий пароль</label>
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label fw-bold">Новый пароль</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label fw-bold">Повторите пароль</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" value="">
+                        </div>
+                        <button type="submit" name="password" class="btn btn-primary mt-auto">Изменить пароль</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+        <!-- Карточка "Общие" -->
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <h5 class="card-header">
+                        Общие
+                    </h5>
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-3">
+                            <label for="timezone" class="form-label fw-bold">Часовой пояс</label>
+                            <select class="form-select" id="timezone" name="timezone">
+                                <option value="0.0">UTC±0 (Лондон, Лиссабон, Дублин, Касабланка)</option>
+                                <option value="1.0">UTC+1 (Берлин, Париж, Рим, Мадрид, Амстердам, Брюссель, Вена, Прага, Стокгольм, Белград, Братислава, Будапешт, Сараево, Варшава)</option>
+                                <option value="2.0">UTC+2 (Калининград, Южная Африка, Киев, Рига, София, Таллин, Вильнюс, Афины, Бухарест, Стамбул, Каир, Хельсинки, Иерусалим)</option>
+                                <option value="3.0">UTC+3 (Москва, Санкт-Петербург, Волгоград, Кувейт, Эр-Рияд, Найроби, Багдад, Минск)</option>
+                                <option value="3.5">UTC+3.5 (Тегеран)</option>
+                                <option value="4.0">UTC+4 (Абу-Даби, Маскат, Баку, Тбилиси, Ереван)</option>
+                                <option value="4.5">UTC+4.5 (Кабул)</option>
+                                <option value="5.0">UTC+5 (Екатеринбург, Исламабад, Карачи, Ташкент)</option>
+                                <option value="5.5">UTC+5.5 (Мумбаи, Колката, Ченнаи, Нью-Дели)</option>
+                                <option value="5.75">UTC+5.75 (Катманду)</option>
+                                <option value="6.0">UTC+6 (Алматы, Дакка, Астана, Омск)</option>
+                                <option value="6.5">UTC+6.5 (Янгон)</option>
+                                <option value="7.0">UTC+7 (Бангкок, Ханой, Джакарта, Новосибирск, Красноярск)</option>
+                                <option value="8.0">UTC+8 (Пекин, Чунцин, Гонконг, Урумчи, Сингапур, Куала-Лумпур, Тайбэй, Перт, Иркутск, Улан-Батор)</option>
+                                <option value="9.0">UTC+9 (Токио, Сеул, Якутск, Осака, Саппоро, Пхеньян)</option>
+                                <option value="9.5">UTC+9.5 (Аделаида, Дарвин)</option>
+                                <option value="10.0">UTC+10 (Брисбен, Канберра, Мельбурн, Сидней, Владивосток, Гуам, Порт-Морсби)</option>
+                                <option value="11.0">UTC+11 (Магадан, Соломоновы Острова, Новая Каледония)</option>
+                                <option value="12.0">UTC+12 (Окленд, Веллингтон, Фиджи, Маршалловы Острова, Петропавловск-Камчатский)</option>
+                                <option value="-11.0">UTC-11 (Самоа)</option>
+                                <option value="-10.0">UTC-10 (Гонолулу, Папеэте)</option>
+                                <option value="-9.0">UTC-9 (Анкоридж, Аляска)</option>
+                                <option value="-8.0">UTC-8 (Ванкувер, Лос-Анджелес, Сиэтл, Лас-Вегас, Сан-Франциско, Тихуана)</option>
+                                <option value="-7.0">UTC-7 (Денвер, Солт-Лейк-Сити, Калгари, Чиуауа, Масатлан)</option>
+                                <option value="-6.0">UTC-6 (Чикаго, Даллас, Мехико, Виннипег, Хьюстон, Остин, Гватемала, Сан-Хосе, Сан-Сальвадор, Коста-Рика, Манагуа, Тегусигальпа)</option>
+                                <option value="-5.0">UTC-5 (Нью-Йорк, Майами, Атланта, Детройт, Гавана, Панама, Лима, Богота)</option>
+                                <option value="-4.5">UTC-4.5 (Каракас)</option>
+                                <option value="-4.0">UTC-4 (Сантьяго)</option>
+                                <option value="-3.5">UTC-3.5 (Ньюфаундленд)</option>
+                                <option value="-3.0">UTC-3 (Буэнос-Айрес, Сан-Паулу, Рио-де-Жанейро, Монтевидео)</option>
+                                <option value="-2.0">UTC-2 (Фернанду-ди-Норонья)</option>
+                                <option value="-1.0">UTC-1 (Азорские острова, Острова Зеленого Мыса)</option>
+                            </select>
+                            <script>
+                                document.getElementById('timezone').value = "{{ user.user_timezone }}";
+                            </script>
+                        </div>
+                        <div class="mb-3 fw-bold">
+                            <label for="about" class="form-label">О себе</label>
+                            <textarea class="form-control" id="about" name="about" rows="3">{{ user.about_me }}</textarea>
+                        </div>
+                        <div class="mb-3 fw-bold">
+                            <label for="email" class="form-label">Адрес электронной почты</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                        </div>
+                        <button type="submit" name="general" class="btn btn-primary mt-auto">Применить изменения</button>
+                    </div>
+
+                </div>
+            </div>
+    </div>
+    </form>
+
+{% endblock %}
